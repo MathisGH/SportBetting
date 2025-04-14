@@ -3,6 +3,8 @@ import requests
 import pandas as pd
 import os
 from pathlib import Path
+import os
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -16,7 +18,8 @@ folder_path = BASE_DIR / "data" / "raw"
 output_file = os.path.join(folder_path, "prochains_matchs.xlsx")
 
 # API Football-Data.org (Ligue 1 uniquement)
-API_TOKEN = "ad122d7c45d84b839143b7593a4daaa2"
+load_dotenv()
+API_TOKEN = os.getenv("API_TOKEN") # Ou a remplacer avec un token
 URL = "https://api.football-data.org/v4/competitions/FL1/matches"
 
 headers = {"X-Auth-Token": API_TOKEN}
