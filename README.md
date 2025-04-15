@@ -8,5 +8,6 @@ How to run the app :
 --> cd SportBetting
 2. Install dependencies:
 --> pip install -r requirements.txt
-3. Run the app:
+3. Replace the API token in upcoming_matches.py
+4. Run the app:
 --> streamlit run app.py
