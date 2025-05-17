@@ -1,10 +1,10 @@
 from shutil import move
-import requests
-import pandas as pd
+import requests # type: ignore
+import pandas as pd # type: ignore
 import os
 from pathlib import Path
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv # type: ignore
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -19,7 +19,7 @@ output_file = os.path.join(folder_path, "prochains_matchs.xlsx")
 
 # API Football-Data.org (Ligue 1 uniquement)
 load_dotenv()
-API_TOKEN = os.getenv("API_TOKEN") # Ou a remplacer avec un token
+API_TOKEN = os.getenv("API_TOKEN") # Ou à remplacer avec un token
 URL = "https://api.football-data.org/v4/competitions/FL1/matches"
 
 headers = {"X-Auth-Token": API_TOKEN}
@@ -29,6 +29,8 @@ if response.status_code == 200:
     data = response.json()
     matches = data["matches"]
     
+    print("Matchs récupérés" if matches else "Aucun match reçu.")
+
     # Filtre les matchs à venir et structure les données
     df_futurs = pd.DataFrame([
         {
@@ -38,7 +40,7 @@ if response.status_code == 200:
             "Competition": match["competition"]["name"],
             "Status": match["status"]
         }
-        for match in matches if match["status"] == "SCHEDULED"
+        for match in matches if match["status"] not in ["FINISHED", "CANCELED", "POSTPONED"]
     ])
 
     # Sauvegarde en Excel avec noms de colonnes standardisés
@@ -80,7 +82,7 @@ if os.path.exists(historical_file):
     final_file = os.path.join(folder_path, "dataset_final.xlsx")
     df_final.to_excel(final_file, index=False)
 
-    print(f"\nDonnées historiques et prochains matchs fusionnés : {final_file}")
+    print(f"\nDonnées historiques et prochains matchs fusionnés : {dataset_final_path}")
 
 # Nettoyage des fichiers temporaires
 os.remove(output_file)  # Supprimer le fichier des prochains matchs

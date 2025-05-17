@@ -26,9 +26,12 @@ data = pd.read_excel(DATA_PATH, engine="openpyxl")
 data["MatchDate"] = pd.to_datetime(data["MatchDate"], errors="coerce")
 
 # --- Sépare passé/futur à la date de coupure
-cutoff_date = pd.to_datetime(args.cutoff) if args.cutoff else pd.Timestamp.today()
-past_matches = data[data["MatchDate"] < cutoff_date].sort_values("MatchDate")
-future_matches = data[data["MatchDate"] >= cutoff_date].sort_values("MatchDate")
+# cutoff_date = pd.to_datetime(args.cutoff) if args.cutoff else pd.Timestamp.today()
+# past_matches = data[data["MatchDate"] < cutoff_date].sort_values("MatchDate")
+# future_matches = data[data["MatchDate"] >= cutoff_date].sort_values("MatchDate")
+
+past_matches = data[data["FTR"] != 0].sort_values("MatchDate") # test
+future_matches = data[data["FTR"] == 0].sort_values("MatchDate")
 
 # --- Sauvegarde les fichiers pour cohérence du pipeline
 past_matches_path = BASE_DIR / 'data' / 'processed' / 'past_matches.xlsx'
@@ -48,5 +51,6 @@ model = XGBClassifier(**best_params, use_label_encoder=False, eval_metric="loglo
 model.fit(X_train, y_train)
 
 # --- Sauvegarde du modèle
+print("Modèle réentraîné et sauvegardé :", MODEL_PATH)
 joblib.dump(model, MODEL_PATH)
 print("Modèle XGBoost entraîné avec les meilleurs paramètres et sauvegardé.")

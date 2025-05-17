@@ -16,7 +16,7 @@ data["MatchDate"] = pd.to_datetime(data["MatchDate"], errors="coerce")
 # Filtre les données avant une date de cutoff (pour éviter les fuites de données)
 cutoff_date = pd.to_datetime("2025-01-01")
 train_data = data[data["MatchDate"] < cutoff_date].copy()
-test_data = data[(data["MatchDate"] >= cutoff_date) & (data["MatchDate"] < pd.Timestamp.today())].copy()
+test_data = data[(data["MatchDate"] >= cutoff_date) & (data["MatchDate"] < pd.Timestamp.today()) & (data['FTR'] != 0)].copy()
 
 # Features et target
 features = [

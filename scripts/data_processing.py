@@ -65,11 +65,18 @@ data[['HomeShotAccuracy', 'AwayShotAccuracy']] = data[['HomeShotAccuracy', 'Away
 # --- Feature Engineering ---
 def add_recent_form_features(df):
     for feature in ['Goals', 'GoalsConceded', 'ShotsOnTarget', 'ShotAccuracy', 'Corners']:
-        df[f'Last3_{feature}_Diff'] = (
-            df.groupby('CodeHomeTeam')[f'Home{feature}'].apply(lambda x: x.shift(1).rolling(3).mean()) -
-            df.groupby('CodeAwayTeam')[f'Away{feature}'].apply(lambda x: x.shift(1).rolling(3).mean())
-        )
+        home_series = df.groupby('CodeHomeTeam')[f'Home{feature}'].apply(
+            lambda x: x.shift(1).rolling(3).mean()
+        ).reset_index(level=0, drop=True)
+
+        away_series = df.groupby('CodeAwayTeam')[f'Away{feature}'].apply(
+            lambda x: x.shift(1).rolling(3).mean()
+        ).reset_index(level=0, drop=True)
+
+        df[f'Last3_{feature}_Diff'] = home_series.subtract(away_series, fill_value=0)
+
     return df
+
 
 data = add_recent_form_features(data)
 

@@ -20,17 +20,15 @@ MODEL_PATHS = {
     "xgb": BASE_DIR / "models" / "model_xgb.pkl"
 }
 
-
 def load_model(model_name):
     return joblib.load(MODEL_PATHS[model_name])
 
-
-def predict_past_matches(model):
+def predict_past_matches(model, model_flag):
     file_path = BASE_DIR / 'data' / 'processed' / 'dataset_final.xlsx'
     df = pd.read_excel(file_path, engine="openpyxl")
     df["MatchDate"] = pd.to_datetime(df["MatchDate"], errors="coerce")
 
-    # Filtre uniquement les matchs déjà joués en 2025
+    # Matchs joués en 2025 uniquement
     df_2025 = df[(df["MatchDate"].dt.year == 2025) & (df["MatchDate"] < pd.Timestamp.today())].copy()
 
     if df_2025.empty:
@@ -41,18 +39,19 @@ def predict_past_matches(model):
     df_2025["Prediction"] = model.predict(X)
     df_2025["Correct"] = df_2025["Prediction"] == df_2025["FTR_encoded"]
 
-    output_path = BASE_DIR / 'data' / 'processed' / 'predictions_passees.xlsx'
+    output_path = BASE_DIR / 'data' / 'processed' / f'predictions_passees_{model_flag}.xlsx'
     df_2025.to_excel(output_path, index=False)
 
     print(f"Prédictions passées sauvegardées dans {output_path}")
     print(f"{df_2025['Correct'].sum()} bonnes prédictions sur {len(df_2025)} matchs ({df_2025['Correct'].mean():.2%})")
 
-
-
 def predict_future_matches(model):
     file_path = BASE_DIR / 'data' / 'processed' / 'dataset_final.xlsx'
     df = pd.read_excel(file_path, engine='openpyxl')
-    future_matches = df[df['MatchDate'] >= pd.Timestamp.today()].sort_values('MatchDate')
+    # future_matches = df[df['MatchDate'] >= pd.Timestamp.today()].sort_values('MatchDate') # on enleve cette ligne car ça ne prenait pas en compte les matchs du jour
+    today = pd.Timestamp.today().normalize()  # garde uniquement la date
+    df['MatchDate'] = pd.to_datetime(df['MatchDate'], errors='coerce')
+    future_matches = df[df['MatchDate'] >= today].sort_values('MatchDate')
 
     X = future_matches[FEATURES].fillna(0)
     future_matches["Predicted_Result"] = model.predict(X)
@@ -63,7 +62,6 @@ def predict_future_matches(model):
 
     print(f"Prédictions enregistrées dans : {output_path}")
 
-
 def main():
     parser = argparse.ArgumentParser(description="Générer des prédictions pour les matchs passés ou futurs.")
     parser.add_argument("--type", choices=["past", "future"], required=True, help="Type de prédiction : past ou future")
@@ -73,10 +71,9 @@ def main():
     model = load_model(args.model)
 
     if args.type == "past":
-        predict_past_matches(model)
+        predict_past_matches(model, args.model)
     else:
         predict_future_matches(model)
-
 
 if __name__ == "__main__":
     main()

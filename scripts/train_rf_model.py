@@ -4,6 +4,7 @@ from sklearn.ensemble import RandomForestClassifier
 import argparse
 from pathlib import Path
 
+
 # Paramètres CLI
 parser = argparse.ArgumentParser()
 parser.add_argument("--cutoff", type=str, default=None, help="Date limite pour entraîner (format YYYY-MM-DD)")
@@ -25,11 +26,14 @@ features = [
 ]
 
 # Date de coupure pour séparation passé/futur
-cutoff_date = pd.to_datetime(args.cutoff) if args.cutoff else pd.Timestamp.today()
+# cutoff_date = pd.to_datetime(args.cutoff) if args.cutoff else pd.Timestamp.today()
 
 # Sépare les matchs passés et futurs (à cette date précise)
-past_matches = data[data["MatchDate"] < cutoff_date].sort_values("MatchDate")
-future_matches = data[data["MatchDate"] >= cutoff_date].sort_values("MatchDate")
+# past_matches = data[data["MatchDate"] < cutoff_date].sort_values("MatchDate")
+# future_matches = data[data["MatchDate"] >= cutoff_date].sort_values("MatchDate")
+
+past_matches = data[data["FTR"] != 0].sort_values("MatchDate") # test
+future_matches = data[data["FTR"] == 0].sort_values("MatchDate")
 
 # Enregistre les deux fichiers pour cohérence du pipeline
 past_matches_path = BASE_DIR / 'data' / 'processed' / 'past_matches.xlsx'
@@ -54,5 +58,6 @@ rf.fit(X_train, y_train)
 
 # Sauvegarde le modèle
 model_path = BASE_DIR / 'models' / 'model_rf.pkl'
+print("Modèle réentraîné et sauvegardé :", model_path)
 joblib.dump(rf, model_path)
 print("Modèle Random Forest entraîné avec succès et sauvegardé.")
