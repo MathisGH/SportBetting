@@ -1,19 +1,14 @@
 .venv/
 env/
 venv/
-
 .env
-
 # Cache Python
 __pycache__/
 *.pyc
 *.pyd
 *.pyo
-
 .vscode/
-
 outputs/
-
 # Fichiers temporaires ou logs
 *.log
 *.tmp
