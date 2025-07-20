@@ -5,12 +5,10 @@ from xgboost import XGBClassifier  # type: ignore
 import json
 from pathlib import Path
 
-# --- CLI ---
 parser = argparse.ArgumentParser()
 parser.add_argument("--cutoff", type=str, help="Date limite pour l'entraînement (format YYYY-MM-DD)")
 args = parser.parse_args()
 
-# --- Constantes ---
 FEATURES = [
     'Last3_Goals_Diff', 'Last3_GoalsConceded_Diff',
     'Last3_ShotsOnTarget_Diff', 'Last3_ShotAccuracy_Diff',
@@ -21,11 +19,11 @@ DATA_PATH = BASE_DIR / "data" / "processed" / "dataset_final.xlsx"
 PARAMS_PATH = BASE_DIR / "config" / "best_xgb_params.json"
 MODEL_PATH = BASE_DIR / "models" / "model_xgb.pkl"
 
-# --- Données ---
+# Data
 data = pd.read_excel(DATA_PATH, engine="openpyxl")
 data["MatchDate"] = pd.to_datetime(data["MatchDate"], errors="coerce")
 
-# --- Sépare passé/futur à la date de coupure
+# Sépare passé/futur à la date de coupure
 # cutoff_date = pd.to_datetime(args.cutoff) if args.cutoff else pd.Timestamp.today()
 # past_matches = data[data["MatchDate"] < cutoff_date].sort_values("MatchDate")
 # future_matches = data[data["MatchDate"] >= cutoff_date].sort_values("MatchDate")
@@ -47,7 +45,10 @@ y_train = past_matches["FTR"].map({'H': 0, 'D': 0, 'A': 1})
 with open(PARAMS_PATH, "r") as f:
     best_params = json.load(f)
 
-model = XGBClassifier(**best_params, use_label_encoder=False, eval_metric="logloss", random_state=42)
+# ratio: number of negative / number of positive
+scale_pos_weight = (y_train == 0).sum() / (y_train == 1).sum()
+
+model = XGBClassifier(**best_params, use_label_encoder=False, eval_metric="logloss", random_state=42, scale_pos_weight=scale_pos_weight)
 model.fit(X_train, y_train)
 
 # --- Sauvegarde du modèle

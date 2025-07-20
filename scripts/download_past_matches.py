@@ -28,7 +28,7 @@ def convert_and_merge_csv_to_excel(folder_path):
 
     merged_data = []  # Stocke les fichiers pour fusion
 
-    # Convertit tous les fichiers CSV en Excel et fusionner
+    # Convertit tous les fichiers CSV en Excel et fusionne
     for file_name in os.listdir(folder_path): # Parcourt tous les fichiers du dossier
         if file_name.endswith(".csv"): # Vérifie que c'est un fichier CSV
             csv_file_path = os.path.join(folder_path, file_name)
@@ -69,9 +69,9 @@ def convert_and_merge_csv_to_excel(folder_path):
         print(f"Fichier fusionné créé : {merged_file_path}")
 
 
-download_current_season()  # Télécharger la saison actuelle
-convert_and_merge_csv_to_excel(folder_path)  # Convertir et fusionner
+download_current_season()  # Télécharge la saison actuelle
+convert_and_merge_csv_to_excel(folder_path)  # Converti et fusionne
 
-# On déplace current_season pour pas qu'il dérange plus tard
+# On déplace current_season pour ne pas qu'il dérange plus tard
 current_season_path = BASE_DIR / "data" / "current_season.csv"
 os.remove(current_season_path)

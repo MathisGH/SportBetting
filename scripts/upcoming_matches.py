@@ -85,5 +85,5 @@ if os.path.exists(historical_file):
     print(f"\nDonnées historiques et prochains matchs fusionnés : {dataset_final_path}")
 
 # Nettoyage des fichiers temporaires
-os.remove(output_file)  # Supprimer le fichier des prochains matchs
-move(final_file, dataset_final_path)  # Déplacer le fichier final dans le dossier définitif
+os.remove(output_file)  # Supprime le fichier des prochains matchs
+move(final_file, dataset_final_path)  # Déplace le fichier final dans le dossier définitif

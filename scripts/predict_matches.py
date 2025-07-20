@@ -38,6 +38,8 @@ def predict_past_matches(model, model_flag):
     X = df_2025[FEATURES].fillna(0)
     df_2025["Prediction"] = model.predict(X)
     df_2025["Correct"] = df_2025["Prediction"] == df_2025["FTR_encoded"]
+    df_2025.drop_duplicates(subset=["MatchDate", "HomeTeam", "AwayTeam"], inplace=True)
+    print("ok")
 
     output_path = BASE_DIR / 'data' / 'processed' / f'predictions_passees_{model_flag}.xlsx'
     df_2025.to_excel(output_path, index=False)
@@ -48,19 +50,24 @@ def predict_past_matches(model, model_flag):
 def predict_future_matches(model):
     file_path = BASE_DIR / 'data' / 'processed' / 'dataset_final.xlsx'
     df = pd.read_excel(file_path, engine='openpyxl')
-    # future_matches = df[df['MatchDate'] >= pd.Timestamp.today()].sort_values('MatchDate') # on enleve cette ligne car ça ne prenait pas en compte les matchs du jour
     today = pd.Timestamp.today().normalize()  # garde uniquement la date
     df['MatchDate'] = pd.to_datetime(df['MatchDate'], errors='coerce')
     future_matches = df[df['MatchDate'] >= today].sort_values('MatchDate')
 
+    if future_matches.empty:
+        print("Aucun match futur trouvé dans dataset_final.xlsx.")
+        return
+
     X = future_matches[FEATURES].fillna(0)
     future_matches["Predicted_Result"] = model.predict(X)
     future_matches["Predicted_Result"] = future_matches["Predicted_Result"].map({1: "AwayWin", 0: "Draw/HomeWin"})
+    future_matches.drop_duplicates(subset=["MatchDate", "HomeTeam", "AwayTeam"], inplace=True)
 
     output_path = BASE_DIR / 'data' / "processed" / 'predictions.xlsx'
     future_matches.to_excel(output_path, index=False)
 
     print(f"Prédictions enregistrées dans : {output_path}")
+
 
 def main():
     parser = argparse.ArgumentParser(description="Générer des prédictions pour les matchs passés ou futurs.")

@@ -1,6 +1,7 @@
 import pandas as pd
 import joblib
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.utils import class_weight
 import argparse
 from pathlib import Path
 
@@ -52,7 +53,8 @@ rf = RandomForestClassifier(
     min_samples_leaf=8,
     min_samples_split=3,
     n_estimators=484,
-    random_state=1
+    random_state=1,
+    class_weight='balanced',
 )
 rf.fit(X_train, y_train)
 

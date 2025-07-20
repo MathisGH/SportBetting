@@ -62,7 +62,7 @@ data['HomeShotAccuracy'] = data['HomeShotsOnTarget'] / data['HomeShots']
 data['AwayShotAccuracy'] = data['AwayShotsOnTarget'] / data['AwayShots']
 data[['HomeShotAccuracy', 'AwayShotAccuracy']] = data[['HomeShotAccuracy', 'AwayShotAccuracy']].fillna(0)
 
-# --- Feature Engineering ---
+# Feature Engineering
 def add_recent_form_features(df):
     for feature in ['Goals', 'GoalsConceded', 'ShotsOnTarget', 'ShotAccuracy', 'Corners']:
         home_series = df.groupby('CodeHomeTeam')[f'Home{feature}'].apply(
@@ -80,7 +80,7 @@ def add_recent_form_features(df):
 
 data = add_recent_form_features(data)
 
-# --- Nettoyage final ---
+# Nettoyage final
 data.drop(columns=['HomeGoals', 'AwayGoals', 'HomeGoalsConceded', 'AwayGoalsConceded', 
                    'HomeShotsOnTarget', 'AwayShotsOnTarget', 'HomeShotAccuracy', 'AwayShotAccuracy', 
                    'HomeCorners', 'AwayCorners'], errors='ignore', inplace=True)
@@ -88,7 +88,7 @@ data.drop(columns=['HomeGoals', 'AwayGoals', 'HomeGoalsConceded', 'AwayGoalsConc
 data.drop_duplicates(inplace=True)
 data.fillna(0, inplace=True)
 
-# --- Sauvegarde ---
+# Sauvegarde
 os.remove(file_path)
 data.to_excel(file_path, index=False)
 print("Données nettoyées et enrichies sauvegardées !")
